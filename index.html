@@ -1,0 +1,776 @@
+<title>معًا عن بُعد</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Tajawal:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: sticky top bar + right-hand course map (RTL) + reading column; mobile: map becomes a drawer */
+:root{
+  --bg:#F6F5FB; --surface:#FFFFFF; --surface2:#EEEDF7; --ink:#22213A; --body:#4E4C6E; --muted:#77759A; --line:#E3E2F0;
+  --indigo:#2A2770; --violet:#4B4FB8; --violetL:#E7E7F7; --teal:#11798A; --tealL:#E3F4F7; --green:#1F7A53; --greenL:#DDF2E8;
+  --gold:#E8A93B; --goldD:#9A6510; --goldL:#FCF0D9; --coral:#B4502F; --coralL:#FBEDE8;
+  --hero:#2A2770; --heroInk:#F6F5FB; --shadow:0 6px 20px rgba(42,39,112,.08);
+  --f-display:'El Messiri',Tahoma,serif; --f-body:'Tajawal',Tahoma,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14132B; --surface:#1D1C3A; --surface2:#262548; --ink:#EDECF8; --body:#C3C2DD; --muted:#9897B8; --line:#33325A;
+  --indigo:#C9CAF5; --violet:#9EA1F0; --violetL:#2C2B57; --teal:#5CC6D6; --tealL:#173B45; --green:#5FC798; --greenL:#183A2D;
+  --gold:#F0BC5E; --goldD:#F0BC5E; --goldL:#3A2E14; --coral:#F09A7C; --coralL:#3D2219;
+  --hero:#211F55; --heroInk:#F6F5FB; --shadow:0 6px 20px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14132B; --surface:#1D1C3A; --surface2:#262548; --ink:#EDECF8; --body:#C3C2DD; --muted:#9897B8; --line:#33325A;
+  --indigo:#C9CAF5; --violet:#9EA1F0; --violetL:#2C2B57; --teal:#5CC6D6; --tealL:#173B45; --green:#5FC798; --greenL:#183A2D;
+  --gold:#F0BC5E; --goldD:#F0BC5E; --goldL:#3A2E14; --coral:#F09A7C; --coralL:#3D2219;
+  --hero:#211F55; --heroInk:#F6F5FB; --shadow:0 6px 20px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.75;direction:rtl;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--hero)}
+a{color:var(--violet)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.35;margin:0}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--hero);color:var(--heroInk);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;min-width:0}
+.brand svg{width:34px;height:34px;flex:none}
+.brand b{font-family:var(--f-display);font-size:20px;white-space:nowrap}
+.prog{flex:1;display:flex;align-items:center;gap:10px;justify-content:flex-end;min-width:0}
+.bar{width:min(220px,30vw);height:8px;border-radius:9px;background:rgba(246,245,251,.18);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#E8A93B;border-radius:9px;transition:width .5s;margin-right:0;margin-left:auto}
+.prog span{font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.menuBtn{display:none;background:rgba(246,245,251,.12);color:var(--heroInk);border:0;border-radius:10px;padding:8px 12px;font-size:15px}
+
+/* shell */
+.shell{display:grid;grid-template-columns:290px minmax(0,1fr);gap:28px;max-width:1240px;margin:0 auto;
+  padding-block:24px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav.map{position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px);align-self:start;max-height:calc(100vh - 100px);overflow:auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
+.map h4{font-family:var(--f-body);font-size:13px;letter-spacing:.3px;color:var(--muted);margin:14px 8px 6px;font-weight:800}
+.map h4:first-child{margin-top:4px}
+.map a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:15px;line-height:1.4}
+.map a:hover{background:var(--surface2)}
+.map a.on{background:var(--violetL);color:var(--violet);font-weight:700}
+.map .dot{width:22px;height:22px;flex:none;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:transparent}
+.map a.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+main{min-width:0}
+main:focus{outline:none}
+.view{animation:inR .45s ease both}
+@keyframes inR{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.view,.rv{animation:none!important}.bar i{transition:none}}
+
+/* home */
+.hero{background:var(--hero);color:var(--heroInk);border-radius:26px;padding:34px 30px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;left:-90px;bottom:-120px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,#E8A93B 0 30%,transparent 31%),radial-gradient(circle,rgba(75,79,184,.6) 0 60%,transparent 61%);opacity:.55}
+.hero .k{color:#E8A93B;font-weight:800;font-size:15px}
+.hero h1{font-size:clamp(34px,6vw,54px);margin:6px 0 10px;color:var(--heroInk)}
+.hero p{max-width:60ch;margin:0;color:#DCDDF6;position:relative;z-index:1}
+.people{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;font-size:15px;color:#DCDDF6;position:relative;z-index:1}
+.people b{color:var(--heroInk);font-family:var(--f-display);font-size:17px}
+.path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow)}
+.stage:hover{border-color:var(--violet)}
+.stage .n{font-family:var(--f-display);font-size:15px;font-weight:700}
+.stage h3{font-size:22px}
+.stage p{margin:0;color:var(--body);font-size:15px}
+.stage .meter{height:6px;border-radius:9px;background:var(--surface2);overflow:hidden;margin-top:auto}
+.stage .meter i{display:block;height:100%;width:0;margin-left:auto}
+.s1 .n{color:var(--violet)} .s1 .meter i{background:var(--violet)}
+.s2 .n{color:var(--teal)} .s2 .meter i{background:var(--teal)}
+.s3 .n{color:var(--goldD)} .s3 .meter i{background:var(--gold)}
+.how{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.how ol{margin:8px 0 0;padding-right:22px}
+
+/* unit page */
+.crumb{font-size:14px;color:var(--muted);font-weight:700}
+.uhead{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.uhead h1{font-size:clamp(28px,4.5vw,40px);color:var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);color:var(--body);border-radius:99px;padding:4px 12px;font-size:14px;font-weight:700}
+.goal{background:var(--violetL);border-radius:16px;padding:14px 18px;color:var(--ink);margin-bottom:22px}
+.goal b{color:var(--violet)}
+.sec{margin:26px 0}
+.sec h2{font-size:24px;margin-bottom:10px;color:var(--ink)}
+.sec p{margin:0 0 10px;max-width:68ch;color:var(--body)}
+.rv{animation:inR .6s ease both}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.card h3{font-size:19px;margin-bottom:6px}
+.card p{margin:0;font-size:15.5px;color:var(--body)}
+.card .tag{font-size:13px;font-weight:800;margin-bottom:4px;display:block}
+.num{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:18px;margin-bottom:10px}
+.c-v{background:var(--violetL);color:var(--violet)} .c-t{background:var(--tealL);color:var(--teal)} .c-g{background:var(--greenL);color:var(--green)} .c-o{background:var(--goldL);color:var(--goldD)} .c-r{background:var(--coralL);color:var(--coral)}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.cmp>div{padding:16px 18px}
+.cmp .a{background:var(--surface2)} .cmp .b{background:var(--tealL)}
+.cmp h3{font-size:18px;margin-bottom:8px}
+.cmp ul{margin:0;padding-right:20px;color:var(--body);font-size:15.5px}
+.cmp .b h3{color:var(--teal)}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) 36px minmax(0,1.4fr);align-items:center;gap:8px;margin-bottom:10px}
+.pair .q{background:var(--goldL);border-radius:12px;padding:10px 14px;font-weight:700;font-size:15.5px}
+.pair .s{background:var(--greenL);border-radius:12px;padding:10px 14px;font-size:15.5px}
+.pair .ar{color:var(--muted);text-align:center;font-size:20px}
+.pair small{display:block;color:var(--muted);font-weight:500;font-size:12.5px}
+.steps{counter-reset:s;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:16px;color:var(--body)}
+.steps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--gold);color:#2A2770;font-weight:800;display:grid;place-items:center;font-size:15px}
+.steps li b{color:var(--ink)}
+.quote{border-radius:18px;background:var(--hero);color:var(--heroInk);padding:20px 22px;font-size:17px;position:relative}
+.quote::before{content:"”";position:absolute;right:14px;top:-18px;font-family:var(--f-display);font-size:74px;color:#E8A93B;opacity:.7}
+.quote p{margin:0;padding-right:24px;color:#E7E7F7}
+.tip{border-radius:16px;padding:14px 18px;background:var(--greenL);color:var(--ink)}
+.tip b{color:var(--green)}
+.warn{border-radius:16px;padding:14px 18px;background:var(--goldL);color:var(--ink)}
+.warn b{color:var(--goldD)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+th{background:var(--indigo);color:var(--bg);text-align:right;padding:10px 12px;font-weight:700}
+:root[data-theme="dark"] th{color:#14132B}
+td{padding:9px 12px;border-top:1px solid var(--line);color:var(--body);vertical-align:top}
+td:first-child{font-weight:700;color:var(--ink)}
+tr:nth-child(even) td{background:var(--surface2)}
+.formula{display:flex;flex-direction:row;height:56px;border-radius:14px;overflow:hidden;margin-bottom:12px}
+.formula div{display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{background:var(--violetL);color:var(--violet);border-radius:99px;padding:6px 14px;font-weight:700;font-size:14.5px}
+
+/* reflect + quiz */
+.reflect{background:var(--surface);border:2px dashed var(--violet);border-radius:18px;padding:18px}
+.reflect h2{font-size:20px;color:var(--violet)}
+textarea{width:100%;min-height:96px;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px;padding:10px 12px;resize:vertical}
+.saved{font-size:13px;color:var(--muted);margin-top:6px;min-height:18px}
+.quiz{display:flex;flex-direction:column;gap:14px}
+.qq{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.qq .qt{font-weight:800;margin-bottom:10px;color:var(--ink)}
+.opt{display:block;width:100%;text-align:right;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:8px;font-size:16px;line-height:1.5}
+.opt:hover:not([disabled]){border-color:var(--violet)}
+.opt.ok{border-color:var(--green);background:var(--greenL)}
+.opt.no{border-color:var(--coral);background:var(--coralL)}
+.opt[disabled]{cursor:default}
+.why{margin-top:10px;font-size:15.5px;color:var(--body);border-right:4px solid var(--green);padding-right:12px}
+.why.bad{border-right-color:var(--coral)}
+.score{font-weight:800;color:var(--violet)}
+
+/* nav footer */
+.pager{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
+.btn{border:0;border-radius:12px;padding:12px 20px;font-size:16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.main{background:var(--violet);color:#fff}
+:root[data-theme="dark"] .btn.main{color:#14132B}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.done{background:var(--green);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.main,:root:not([data-theme="light"]) .btn.done{color:#14132B} :root:not([data-theme="light"]) th{color:#14132B}}
+
+/* mock screens (illustrations of Teams; fixed screen palette, readable in both themes) */
+.mockwrap{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px}
+.mock{container-type:inline-size;position:relative;width:100%;aspect-ratio:16/10.4;border-radius:12px;overflow:hidden;background:#F3F2FA;font-family:var(--f-body);direction:rtl;box-shadow:inset 0 0 0 1px #D9D8EA}
+.mock *{position:absolute;margin:0}
+.mock .b{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;font-size:2.15cqw;color:#2A2770;border-radius:1.2cqw;padding:0 .6cqw;overflow:hidden}
+.m-bar{background:#2B2A4A!important;color:#E7E7F7!important;border-radius:0!important}
+.m-rail{background:#33325A!important;border-radius:0!important}
+.m-railicon{background:#5A59A0!important;border-radius:1cqw!important}
+.m-btn{background:#3E3D66!important;color:#F6F5FB!important}
+.m-btn.hl{background:#5B5FC7!important;box-shadow:0 0 0 .5cqw #E8A93B}
+.m-red{background:#C4314B!important;color:#fff!important}
+.m-panel{background:#FFFFFF!important;box-shadow:0 .4cqw 1.6cqw rgba(42,39,112,.18);border-radius:1.4cqw!important}
+.m-row{background:#F1F0FA!important;justify-content:flex-start!important;padding-right:1.4cqw!important}
+.m-row.hl{background:#E3E3FA!important;box-shadow:0 0 0 .4cqw #E8A93B}
+.m-pbtn{background:#5B5FC7!important;color:#fff!important}
+.m-pbtn.g{background:#2E9E6E!important}
+.m-pbtn.o{background:#FFFFFF!important;color:#2A2770!important;box-shadow:inset 0 0 0 .3cqw #C9C8E3}
+.m-tile{background:#2F2E52!important;color:#9C9BC4!important}
+.m-tile.on{background:#46457A!important;color:#E7E7F7!important}
+.m-title{background:transparent!important;font-weight:800;justify-content:flex-start!important;font-size:2.4cqw!important}
+.m-text{background:transparent!important;justify-content:flex-start!important;color:#4E4C6E!important}
+.m-input{background:#FFFFFF!important;box-shadow:inset 0 0 0 .3cqw #C9C8E3;justify-content:flex-start!important;padding-right:1.2cqw!important;color:#4E4C6E!important}
+.m-note{color:#3A3460!important;font-size:1.7cqw!important;border-radius:.5cqw!important;box-shadow:0 .2cqw .6cqw rgba(0,0,0,.12)}
+.n1{background:#FCE7BE!important}.n2{background:#D5F1E3!important}.n3{background:#DCDDF6!important}.n4{background:#FBD9CE!important}.n5{background:#CDEFF4!important}
+.m-area{background:#FFFFFF!important;box-shadow:inset 0 0 0 .3cqw #D9D8EA}
+.m-tab{background:transparent!important;color:#4E4C6E!important}
+.m-tab.hl{color:#5B5FC7!important;font-weight:800;box-shadow:inset 0 -.5cqw 0 #5B5FC7,0 0 0 .4cqw #E8A93B}
+.m-bar2{background:#FFFFFF!important;border-radius:0!important;box-shadow:0 .2cqw .6cqw rgba(42,39,112,.1)}
+.m-chart{background:#5B5FC7!important;border-radius:.5cqw .5cqw 0 0!important}
+.pin{width:5.4cqw;height:5.4cqw;border-radius:50%;background:#E8A93B;color:#2A2770;font-weight:800;font-size:2.9cqw;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 .6cqw rgba(232,169,59,.35),0 .4cqw 1cqw rgba(0,0,0,.25);z-index:5;transform:translate(50%,-50%)}
+.cap{font-size:13.5px;color:var(--muted);margin-top:10px}
+
+/* tasks */
+.task{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:16px}
+.task h3{font-size:21px;margin-bottom:4px}
+.task .what{background:var(--surface2);border-radius:12px;padding:10px 14px;margin:10px 0;font-size:15.5px;color:var(--body)}
+.task ul{margin:6px 0 0;padding-right:20px;color:var(--body);font-size:15.5px}
+.fld{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:15px;color:var(--ink);min-width:0}
+.fld input,.fld select{font:inherit;font-weight:500;font-size:16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px;width:100%}
+.fld textarea{margin-top:0}
+.chip.c-o,.chip.c-v,.chip.c-g,.chip.c-t{font-weight:800}
+body.locked nav.map,body.locked .prog,body.locked .menuBtn{display:none}
+body.locked .shell{grid-template-columns:minmax(0,1fr);max-width:760px}
+.gsteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gsteps div{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;font-weight:700;font-size:14.5px;color:var(--muted)}
+.gsteps span{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--surface2);font-size:13px}
+.gsteps .ok{color:var(--green)} .gsteps .ok span{background:var(--green);color:#fff}
+.gsteps .cur{color:var(--violet);border-color:var(--violet)} .gsteps .cur span{background:var(--violet);color:#fff}
+@media (max-width:560px){.gsteps div{flex-direction:column;text-align:center;font-size:13px}}
+.btn.wa{background:#1F8A55;color:#fff}
+.foot{background:var(--hero);color:#DCDDF6;margin-top:10px;padding:26px max(16px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.footIn{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:22px;align-items:center}
+.fBrand{display:flex;flex-direction:column;gap:4px;font-size:15px}
+.fBrand b{font-family:var(--f-display);font-size:22px;color:#F6F5FB}
+.fPeople{display:grid;gap:10px}
+.fp{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:rgba(246,245,251,.08);border-radius:14px;padding:10px 14px}
+.fp b{color:#F6F5FB;font-family:var(--f-display);font-size:17px;flex:1;min-width:150px}
+.fnum{color:#E8A93B;font-weight:800;font-size:18px;text-decoration:none;font-variant-numeric:tabular-nums}
+.fwa{background:#1F8A55;color:#fff;border-radius:99px;padding:4px 14px;font-weight:800;font-size:14px;text-decoration:none}
+.fSmall{max-width:1240px;margin:16px auto 0;padding-top:12px;border-top:1px solid rgba(246,245,251,.15);font-size:13.5px}
+.fSmall a{color:#E8A93B}
+@media (max-width:900px){.footIn{grid-template-columns:minmax(0,1fr)}}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:8px;font-size:16px;color:var(--body)}
+.check input{width:20px;height:20px;margin-top:4px;accent-color:#2E9E6E;flex:none}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  nav.map{position:fixed;top:0;bottom:0;right:0;width:min(320px,86vw);max-height:none;z-index:40;border-radius:0;
+    padding-top:calc(env(safe-area-inset-top,0px) + 16px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px);padding-right:calc(14px + env(safe-area-inset-right,0px));
+    transform:translateX(105%);transition:transform .3s;box-shadow:-10px 0 40px rgba(0,0,0,.25)}
+  nav.map.open{transform:none}
+  .menuBtn{display:inline-block}
+  .scrim{position:fixed;inset:0;background:rgba(10,9,30,.45);z-index:35}
+  .path,.g3,.g4{grid-template-columns:minmax(0,1fr)}
+  .g2{grid-template-columns:minmax(0,1fr)}
+  .prog .bar{width:22vw}
+}
+@media (max-width:560px){
+  body{font-size:16.5px}
+  .brand b{font-size:17px}
+  .cmp{grid-template-columns:minmax(0,1fr)}
+  .pair{grid-template-columns:minmax(0,1fr)} .pair .ar{transform:rotate(-90deg);height:18px}
+  .hero{padding:26px 20px}
+}
+</style>
+
+<header class="top">
+  <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="map">خريطة الدورة</button>
+  <a class="brand" href="#home" aria-label="الصفحة الرئيسية">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><g stroke="#F6F5FB" stroke-width="4" stroke-linecap="round" opacity=".75"><line x1="38.4" y1="18" x2="72.8" y2="24.7"/><line x1="72.8" y1="24.7" x2="83" y2="58.2"/><line x1="83" y1="58.2" x2="58.2" y2="83"/><line x1="58.2" y1="83" x2="24.7" y2="72.8"/></g><circle cx="38.4" cy="18" r="10" fill="#F6F5FB"/><circle cx="72.8" cy="24.7" r="10" fill="#F6F5FB"/><circle cx="83" cy="58.2" r="11" fill="#E8A93B"/><circle cx="58.2" cy="83" r="10" fill="#F6F5FB"/><circle cx="24.7" cy="72.8" r="10" fill="#F6F5FB"/></svg>
+    <b>معًا عن بُعد</b>
+  </a>
+  <div class="prog"><span id="progTxt">0 من 16</span><div class="bar" role="progressbar" aria-label="نسبة الإنجاز" aria-valuemin="0" aria-valuemax="100" id="progBar"><i></i></div></div>
+</header>
+
+<div class="shell">
+  <nav class="map" id="map" aria-label="خريطة الدورة"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+<footer class="foot" id="foot"></footer>
+
+<script>
+/* ================= CONTENT ================= */
+const UNITS = [
+{id:"u1", title:"مفهوم التعلم التعاوني", mins:10, goal:"تميّزين التعلم التعاوني عن العمل الجماعي التقليدي، وتعرفين متى يكون العمل في مجموعة تعاونيًا حقًا.",
+ blocks:[
+  {t:"sec", h:"ما التعلم التعاوني؟", p:["استراتيجية تعمل فيها الطالبات في مجموعات صغيرة غير متجانسة لتحقيق هدف مشترك، بحيث يرتبط نجاح كل طالبة بنجاح مجموعتها، وتبقى كل واحدة مسؤولة عن تعلمها وإسهامها.","ليس كل عمل في مجموعة تعاونيًا. الفرق في التصميم: من يملك ماذا؟ وكيف تظهر مساهمة كل طالبة؟"]},
+  {t:"cmp", h:"جماعي أم تعاوني؟", a:["يكفي أن تنجز بعض العضوات المهمة","تقييم جماعي بدرجة واحدة","أقوى طالبة تقود تلقائيًا","المعلمة تنتظر المنتج","لا مراجعة لطريقة العمل"], b:["لا تكتمل المهمة دون إسهام كل عضوة","تقييم فردي وجماعي معًا","أدوار محددة ومتناوبة","المعلمة تراقب وتتدخل وتوجّه","المجموعة تقيّم أداءها وتحسّنه"]},
+  {t:"quote", h:"موقف من الفصل", text:"طلبتِ من طالباتك عملًا جماعيًا عن بُعد، فأنجزته طالبة واحدة وكتبت البقية أسماءهن. هذا عمل جماعي، لكنه ليس تعلمًا تعاونيًا: لم يعتمد نجاح المجموعة على كل عضوة، ولم تظهر مساهمة أحد غير واحدة."},
+  {t:"tip", text:"<b>الخلاصة:</b> العمل الجماعي يجمع الطالبات في مكان واحد، أما التعاوني فيجعل نجاح كل واحدة مشروطًا بنجاح الأخريات، ويحمّل كل فرد مسؤولية ظاهرة."}
+ ],
+ reflect:"تذكري آخر عمل جماعي كلفتِ به طالباتك عن بُعد: هل كان جماعيًا أم تعاونيًا؟ وما الذي كان سيجعله تعاونيًا؟",
+ quiz:[
+  {q:"أي هذه المواقف تعلم تعاوني؟", o:["مجموعة تنجز فيها أسرع طالبة المهمة وتضيف البقية أسماءهن","مجموعة لا تكتمل مهمتها إلا بجزء تقدمه كل عضوة","طالبات في غرفة فرعية دون منتج محدد"], a:1, w:"التعاون الحقيقي يعني أن لكل طالبة جزءًا لا يكتمل العمل دونه، وهذا هو الاعتماد المتبادل الإيجابي."},
+  {q:"كيف يُقيَّم العمل في التعلم التعاوني؟", o:["درجة جماعية واحدة للمجموعة","تقييم فردي وجماعي معًا","تقييم ذاتي فقط"], a:1, w:"الجمع بين الفردي والجماعي يكافئ المنتج المشترك ويكشف إسهام كل طالبة في الوقت نفسه."},
+  {q:"ما دور المعلمة أثناء العمل التعاوني؟", o:["تنتظر المنتج النهائي","تراقب وتتدخل وتوجّه","تشرح ثم تترك المجموعات حتى نهاية الحصة"], a:1, w:"المعلمة تزور الغرف وتراقب وتتدخل بسؤال توجيهي عند الحاجة، ولا تكتفي بانتظار المنتج."}
+ ]},
+{id:"u2", title:"المبادئ الخمسة للتعلم التعاوني", mins:12, goal:"تشرحين المبادئ الخمسة (جونسون وجونسون) وتعرفين كيف يتحقق كل مبدأ في حصة افتراضية.",
+ blocks:[
+  {t:"sec", h:"خمسة مبادئ تصنع الفرق", p:["إذا غاب مبدأ منها صار النشاط عملًا جماعيًا عاديًا. استخدميها قائمة فحص عند تصميم أي نشاط."]},
+  {t:"cards", cols:"g3", items:[
+    ["1","الاعتماد المتبادل الإيجابي","«نغرق معًا أو ننجو معًا». عن بُعد: كل طالبة تملك جزءًا من المعلومة أو دورًا لا يكتمل العمل دونه.","c-v"],
+    ["2","المسؤولية الفردية","لا مكان للاختفاء. عن بُعد: لون أو اسم لكل طالبة على السبورة، وسؤال عشوائي لأي عضوة.","c-t"],
+    ["3","التفاعل المعزِّز","تشرح الطالبات ويشجعن ويساعدن بعضهن. عن بُعد: الغرف الفرعية، والتعليق في القناة الخاصة.","c-g"],
+    ["4","المهارات الاجتماعية","الإصغاء، وأخذ الدور، والنقد اللطيف. عن بُعد: تُعلَّم صراحة عبر الميثاق الرقمي.","c-o"],
+    ["5","معالجة عمل المجموعة","تقيّم المجموعة كيف عملت. عن بُعد: سؤال تأمل أو استبانة Forms قصيرة في نهاية النشاط.","c-r"]]},
+  {t:"quote", h:"مثال", text:"في نشاط جيجسو أخذت كل طالبة رقمًا من 1 إلى 5 يمثل مبدأً واحدًا، وصارت مسؤولة عن تعليمه لمجموعتها. لو غابت صاحبة الرقم 3 لنقص فهم المجموعة كلها: هذا هو الاعتماد المتبادل."},
+  {t:"tip", text:"<b>قائمة فحص سريعة:</b> هل لكل طالبة جزء؟ هل يظهر إسهامها؟ هل تتحدث الطالبات مع بعضهن؟ هل علّمتُ مهارة التعاون؟ هل تأملت المجموعة في عملها؟"}
+ ],
+ reflect:"أي مبدأ هو الأصعب تحقيقًا في فصلك الافتراضي؟ وما خطوتك الأولى لتحقيقه؟",
+ quiz:[
+  {q:"عبارة «نغرق معًا أو ننجو معًا» تعبير عن مبدأ:", o:["المسؤولية الفردية","الاعتماد المتبادل الإيجابي","المهارات الاجتماعية"], a:1, w:"الاعتماد المتبادل يعني أن نجاح كل عضوة مرتبط بنجاح المجموعة كلها."},
+  {q:"أنجزت طالبة واحدة المهمة وكتبت البقية أسماءهن. أي مبدأ غاب أساسًا؟", o:["المسؤولية الفردية","التفاعل المعزِّز","معالجة عمل المجموعة"], a:0, w:"عندما تستطيع الطالبة الاختفاء خلف المجموعة، فالمسؤولية الفردية غائبة."},
+  {q:"ختمتِ النشاط بسؤال: «ما الذي نجح في عمل مجموعتكن؟ وما الذي ستحسّنّه؟». أي مبدأ يحققه؟", o:["الاعتماد المتبادل الإيجابي","المهارات الاجتماعية","معالجة عمل المجموعة"], a:2, w:"معالجة عمل المجموعة هي تأمل المجموعة في طريقة عملها لتحسينها."}
+ ]},
+{id:"u3", title:"تحديات التعاون عن بُعد وحلولها", mins:10, goal:"تحللين أشهر تحديات التعاون في الحصة الافتراضية، وتختارين لكل تحدٍّ حلًا عمليًا عبر Teams.",
+ blocks:[
+  {t:"quote", h:"يوميات حصة افتراضية", text:"بدأت الحصة بـ30 طالبة، فتحت 3 منهن الكاميرا. سألت سؤالًا فساد الصمت. أرسلتهن للغرف الفرعية، فعادت مجموعتان بلا إنجاز، وقالت إحداهن: المايك ما يشتغل. وفي المهمة الجماعية سلّمت طالبة واحدة الملف باسم الجميع."},
+  {t:"pairs", h:"التحدي والحل", items:[
+    ["صمت الطالبات وإغلاق الكاميرات","اجتماعي","أدوار محددة لكل طالبة، ومهمة ذات منتج مرئي على السبورة بدل النقاش الشفهي"],
+    ["غرف فرعية تعود بلا إنجاز","تربوي","تعليمات مكتوبة مثبتة، ومنتج محدد، ومؤقت، وزيارة المعلمة"],
+    ["طالبة تعمل والبقية يتكلن","تقييمي","لون أو اسم لكل طالبة في الملف، وسؤال عشوائي لأي عضوة"],
+    ["ضعف الإنترنت","تقني","الدردشة بديلًا للصوت، ومهام غير متزامنة في القناة الخاصة"],
+    ["صعوبة متابعة عدة مجموعات","تربوي","دفتر الصف OneNote: صفحة لكل مجموعة تراها المعلمة لحظيًا"]]},
+  {t:"tip", text:"<b>الخلاصة:</b> معظم تحدياتنا ليست تقنية؛ إنها تحديات تصميم. التصميم الجيد قبل الحصة يمنع أغلبها."}
+ ],
+ reflect:"اكتبي تحديًا تواجهينه فعلًا في فصلك الافتراضي، وحلًا من هذه الوحدة ستجربينه هذا الأسبوع.",
+ quiz:[
+  {q:"تعود الغرف الفرعية بلا إنجاز. ما الحل الأنسب؟", o:["إلغاء الغرف الفرعية","تعليمات مثبتة ومنتج محدد ومؤقت وزيارة المعلمة","إطالة وقت الغرف"], a:1, w:"الغرفة تنجح عندما تعرف الطالبات ماذا يصنعن، ومتى ينتهي الوقت، وأن المعلمة قد تزورهن."},
+  {q:"طالبة إنترنتها ضعيف ولا تستطيع الحديث. ما البديل؟", o:["تُعفى من النشاط","الدردشة بديلًا للصوت ومهام غير متزامنة","تنتظر حتى يتحسن الاتصال"], a:1, w:"الدردشة والقنوات تتيح لها المشاركة دون صوت أو فيديو."},
+  {q:"أي أداة تساعدك على متابعة عمل كل المجموعات لحظيًا؟", o:["دفتر ملاحظات الصف OneNote","التقويم","الدردشة الخاصة"], a:0, w:"في مساحة التعاون بدفتر الصف ترى المعلمة صفحة كل مجموعة أثناء الكتابة."}
+ ]},
+{id:"u4", title:"أدوات Teams الداعمة للتعاون", mins:10, goal:"تعرفين دور كل أداة من أدوات Teams في التعاون، وتختارين الأداة المناسبة لكل نشاط.",
+ blocks:[
+  {t:"sec", h:"الأداة تخدم الهدف", p:["ابدئي من النشاط الذي تريدينه، ثم اختاري الأداة. كل أداة هنا لها دليل مصور في الجزء الثاني من المنصة."]},
+  {t:"cards", cols:"g2", items:[
+    ["1","الغرف الفرعية","نقاش متزامن في مجموعات صغيرة أثناء الاجتماع.","c-v"],
+    ["2","القنوات الخاصة","مساحة دائمة لكل مجموعة: ملفات ودردشة واجتماعات.","c-t"],
+    ["3","السبورة البيضاء","تفكير مرئي مشترك وعصف ذهني بالملصقات.","c-g"],
+    ["4","دفتر ملاحظات الصف","صفحة لكل مجموعة في مساحة التعاون تراها المعلمة لحظيًا.","c-o"],
+    ["5","المهام الجماعية","مهمة تُسلَّم باسم المجموعة وتُقيَّم بسلم تقدير.","c-r"],
+    ["6","Forms","اختبارات قصيرة، وتقييم الأقران، والتقييم الذاتي.","c-v"],
+    ["7","Loop وInsights","جداول يحررها الجميع معًا، وتقارير تكشف نشاط كل طالبة.","c-t"]]},
+  {t:"tip", text:"<b>نصيحة:</b> ابدئي بأداة واحدة تتقنينها مع طالباتك، ثم أضيفي غيرها تدريجيًا."}
+ ],
+ reflect:"أي أداة تستخدمينها الآن؟ وأي أداة جديدة ستجربينها في الحصة القادمة؟ ولماذا؟",
+ quiz:[
+  {q:"تريدين نقاشًا متزامنًا في مجموعات صغيرة أثناء الحصة. أي أداة؟", o:["Forms","الغرف الفرعية","Insights"], a:1, w:"الغرف الفرعية تقسم الاجتماع إلى مجموعات صغيرة تتحدث في الوقت نفسه."},
+  {q:"تحتاج كل مجموعة مساحة دائمة للملفات والدردشة والاجتماعات. أي أداة؟", o:["القنوات الخاصة","السبورة البيضاء","التقويم"], a:0, w:"القناة الخاصة تبقى للمجموعة طوال الوحدة أو الفصل، ولا يراها إلا أعضاؤها."},
+  {q:"تريدين مهمة تُسلَّم باسم المجموعة وتُصحَّح بسلم تقدير. أي أداة؟", o:["Loop","المهام (Assignments)","الدردشة"], a:1, w:"في المهام تقسمين الطالبات إلى مجموعات وتضيفين سلم تقدير للتصحيح."}
+ ]},
+{id:"u5", title:"الاستراتيجيات التعاونية الثماني", mins:15, goal:"تطبقين ثماني استراتيجيات تعاونية داخل Teams، وتختارين الأنسب لهدفك وزمنك ومرحلتك.",
+ blocks:[
+  {t:"strats", h:"الاستراتيجيات وخطواتها داخل Teams", items:[
+    ["فكّر-زاوج-شارك","سؤال مفتوح ودقيقة تفكير فردي، ثم غرف ثنائية 3 دقائق، ثم مشاركة في الغرفة الرئيسة.","c-v"],
+    ["الطاولة المستديرة","مجموعة مع سبورة أو Loop، وترتيب الدور في الدردشة، وفكرة لكل طالبة في دورها لعدة جولات.","c-t"],
+    ["الرؤوس المرقمة","رقم لكل طالبة، ودقيقتان للمجموعة لتتأكد أن الجميع يعرف، ثم رقم عشوائي يجيب في الدردشة.","c-g"],
+    ["جيجسو","جزء من الدرس لكل طالبة، ثم غرف الخبيرات، ثم العودة للمجموعة وتعليم الجزء، ثم اختبار فردي.","c-o"],
+    ["فرق التحصيل STAD","شرح المعلمة، ثم مذاكرة جماعية في OneNote، ثم اختبار فردي في Forms، ونقاط الفريق من تحسّن أعضائه.","c-r"],
+    ["الاستقصاء الجماعي","موضوع عام وأسئلة فرعية، وكل مجموعة تبحث سؤالًا في قناتها عبر حصص، ثم عرض مشترك.","c-v"],
+    ["التعلم معًا","مهمة ومنتج واحد بأدوار محددة، ثم تقييم جماعي وسؤال فردي عشوائي وتأمل.","c-t"],
+    ["المقابلة ثلاثية الخطوات","ثنائيات تتقابل وتتبادل، ثم يندمج ثنائيان، وتعرض كل طالبة ما قالته زميلتها.","c-g"]]},
+  {t:"table", h:"مصفوفة اختيار الاستراتيجية", head:["الاستراتيجية","الهدف الأنسب","الزمن","النمط","عن بُعد"], rows:[
+    ["فكّر-زاوج-شارك","تنشيط وتفكير قبل المشاركة","5–10 د","متزامنة","سهلة جدًا"],
+    ["الطاولة المستديرة","عصف ذهني ومراجعة","5–15 د","متزامنة","سهلة"],
+    ["الرؤوس المرقمة","تحقق من الفهم","5–10 د","متزامنة","سهلة"],
+    ["المقابلة ثلاثية الخطوات","التعبير والإصغاء","10–15 د","متزامنة","سهلة"],
+    ["جيجسو","محتوى قابل للتجزئة","حصة كاملة","متزامنة","متوسطة"],
+    ["التعلم معًا","منتج مشترك ومهارات اجتماعية","20–40 د","الاثنتان","متوسطة"],
+    ["STAD","تحصيل معرفي وتحفيز","1–2 حصة","الاثنتان","متوسطة"],
+    ["الاستقصاء الجماعي","البحث والتفكير العليا","2–4 حصص","غالبًا غير متزامنة","متقدمة"]]},
+  {t:"tip", text:"<b>القاعدة:</b> لا توجد استراتيجية «أفضل»، بل استراتيجية أنسب للهدف والزمن والمرحلة. للطالبات الخجولات ابدئي بفكّر-زاوج-شارك."}
+ ],
+ reflect:"اختاري استراتيجية تناسب درسك القادم، واكتبي خطواتها مع أداة Teams لكل خطوة.",
+ quiz:[
+  {q:"يُقسَّم الدرس إلى أجزاء، وتصبح كل طالبة خبيرة في جزء تعلّمه لمجموعتها. ما الاستراتيجية؟", o:["الطاولة المستديرة","جيجسو","STAD"], a:1, w:"جيجسو تقوم على الخبيرات: كل طالبة تتقن جزءًا وتعلّمه لمجموعتها الأم."},
+  {q:"في الرؤوس المرقمة، من يجيب عن السؤال؟", o:["تختار المجموعة من تجيب","صاحبة الرقم الذي تعلنه المعلمة عشوائيًا","أسرع طالبة"], a:1, w:"الرقم العشوائي يجعل كل عضوة مسؤولة عن معرفة الإجابة."},
+  {q:"أي استراتيجية أسهل مدخل للطالبات الخجولات؟", o:["فكّر-زاوج-شارك","الاستقصاء الجماعي","المناظرة"], a:0, w:"الحديث مع زميلة واحدة أقل رهبة من الحديث أمام الفصل كاملًا."}
+ ]},
+{id:"u6", title:"أدوار المجموعة والمواقف الصعبة", mins:12, goal:"توزعين أدوار المجموعة، وتعالجين المواقف الصعبة بتدخل فوري ووقاية في التصميم.",
+ blocks:[
+  {t:"cards", h:"الأدوار الخمسة", cols:"g3", items:[
+    ["١","الميسّرة","تعطي الكلمة لكل زميلة، وتبقي النقاش في المهمة.","c-v"],
+    ["٢","المقررة","تكتب ما يُتفق عليه على السبورة أو الصفحة المشتركة.","c-t"],
+    ["٣","الميقاتية","تنبّه عند منتصف الوقت، وقبل النهاية بدقيقة.","c-g"],
+    ["٤","مراقبة الجودة","تتأكد أن الجميع شارك، وأن المنتج يطابق المطلوب.","c-o"],
+    ["٥","المتحدثة","تعرض عمل المجموعة على الفصل باسمها.","c-r"]]},
+  {t:"table", h:"صيدلية المواقف الصعبة", head:["الموقف","تدخل فوري","وقاية في التصميم"], rows:[
+    ["الصامتة","دور صغير محدد، والمشاركة بالدردشة مقبولة","فكّر-زاوج-شارك قبل المجموعة الكبيرة"],
+    ["المسيطرة","تكليفها بدور الميسّرة المسؤولة عن إعطاء الكلمة","الطاولة المستديرة، وقاعدة «ثلاث قبلي»"],
+    ["الغرفة الشاردة","زيارة بسؤال توجيهي لا بلوم، وتذكير بالمنتج والزمن","منتج مرئي محدد ومؤقت مثبت"],
+    ["الخلاف","تذكير بالميثاق، وطلب دليل لكل رأي","بند احترام الرأي في الميثاق"],
+    ["المنسحبة","تواصل خاص بعد الحصة لفهم السبب","توزيع يدوي مع زميلة داعمة"]]},
+  {t:"tip", text:"<b>تذكري:</b> الأدوار تتناوب بين الحصص حتى تمر كل طالبة على كل دور. وفي المجموعات الصغيرة تُدمج الأدوار."}
+ ],
+ reflect:"ما الموقف الصعب الأكثر تكرارًا في فصلك؟ وما التدخل الذي ستجربينه في المرة القادمة؟",
+ quiz:[
+  {q:"طالبة متفوقة تسيطر على النقاش وتنجز المهمة وحدها. ما أنسب تدخل؟", o:["إخراجها من المجموعة","تكليفها بدور الميسّرة المسؤولة عن إعطاء الكلمة","منحها درجة أعلى"], a:1, w:"دور الميسّرة يحوّل طاقتها إلى إشراك زميلاتها بدل الاستحواذ."},
+  {q:"طالبة صامتة وكاميرتها مغلقة. ما أول تدخل؟", o:["مطالبتها بفتح الكاميرا أمام الجميع","دور صغير محدد مع قبول مشاركتها بالدردشة","تجاهلها"], a:1, w:"الدور الصغير والقناة المريحة يفتحان لها باب المشاركة دون إحراج."},
+  {q:"دخلتِ غرفة فوجدت الطالبات يتحدثن في موضوع آخر. ماذا تفعلين؟", o:["توبيخهن أمام الفصل","زيارة بسؤال توجيهي وتذكير بالمنتج والزمن","إغلاق الغرفة فورًا"], a:1, w:"السؤال التوجيهي يعيد المجموعة للمهمة دون أن يكسر جو التعاون."}
+ ]},
+{id:"u7", title:"تقييم العمل التعاوني", mins:12, goal:"تقيّمين العمل التعاوني تقييمًا عادلًا يرى المجموعة وكل فرد فيها، وتبنين سلم تقدير يميز الإسهام الفردي.",
+ blocks:[
+  {t:"sec", h:"لماذا لا تكفي الدرجة الجماعية؟", p:["مجموعة من خمس طالبات حصلت على 10/10، واثنتان لم تشاركا إطلاقًا. الدرجة الجماعية وحدها تكافئ المتكلة وتظلم المجتهدة."]},
+  {t:"cards", h:"العدسات الأربع", cols:"g2", items:[
+    ["◎","الفردي","تعلّم كل طالبة · اختبار Forms قصير أو سؤال عشوائي","c-v"],
+    ["◎","الجماعي","جودة المنتج المشترك · Assignments بسلم تقدير","c-t"],
+    ["◎","الأقران","«قيّمي إسهام كل زميلة من 1 إلى 4» عبر Forms","c-g"],
+    ["◎","الذاتي","«ما الذي أضفته لمجموعتي اليوم؟»","c-o"]]},
+  {t:"formula", h:"معادلة درجة مقترحة"},
+  {t:"sec", h:"كيف أكشف الإسهام الفردي عن بُعد؟", p:["سجل الإصدارات في ملفات القناة يُظهر من عدّل وماذا · لون أو اسم لكل طالبة على السبورة أو في OneNote · تقارير Insights لنشاط الطالبات · السؤال العشوائي لأي عضوة عن منتج المجموعة."]},
+  {t:"tip", text:"<b>سلم التقدير الجيد:</b> 3 إلى 5 معايير واضحة، ووصف سلوكي لكل مستوى، ومعيار واحد على الأقل يقيس التعاون نفسه، ويُشارَك مع الطالبات <b>قبل</b> بدء المهمة."}
+ ],
+ reflect:"صممي معيارًا واحدًا لسلم تقدير يقيس الإسهام الفردي في مهمة جماعية من مادتك، واكتبي وصف المستوى «متميز» فيه.",
+ quiz:[
+  {q:"أي تركيب للتقييم أعدل في العمل التعاوني؟", o:["درجة جماعية واحدة","منتج جماعي بسلم تقدير + أداء فردي + تقييم أقران","تقييم ذاتي فقط"], a:1, w:"تعدد العدسات يرى المنتج المشترك وإسهام كل طالبة معًا."},
+  {q:"متى تشاركين سلم التقدير مع الطالبات؟", o:["قبل بدء المهمة","بعد التصحيح","لا داعي لمشاركته"], a:0, w:"معرفة المعايير مسبقًا توجّه عمل الطالبات وتجعل التقييم شفافًا."},
+  {q:"أي وسيلة تكشف من عدّل ماذا في ملف المجموعة؟", o:["سجل الإصدارات","عدد رسائل الدردشة","مدة بقاء الطالبة في الاجتماع"], a:0, w:"سجل الإصدارات في ملفات Teams يحفظ كل تعديل باسم صاحبته."}
+ ]},
+{id:"u8", title:"الميثاق الرقمي وآداب التواصل", mins:8, goal:"تصوغين مع طالباتك ميثاقًا رقميًا ببنود إيجابية واضحة تنظم التواصل في الفصل الافتراضي.",
+ blocks:[
+  {t:"cmp2", h:"البند الجيد", a:"«ممنوع المقاطعة»", b:"«أكتب سؤالي في الدردشة إذا كان المايك مشغولًا»"},
+  {t:"pills", h:"معايير البند الجيد", items:["يبدأ بفعل إيجابي","قصير","قابل للملاحظة","مناسب لعمر الطالبة"]},
+  {t:"cards", h:"المحاور الخمسة", cols:"g3", items:[
+    ["1","الكاميرا والصوت","متى نفتح الكاميرا؟ ومتى نغلق المايك؟","c-v"],
+    ["2","الدردشة والرموز","كيف نسأل ونتفاعل دون فوضى؟","c-t"],
+    ["3","العمل في الغرف","كيف نبدأ ونوزع الأدوار ونسلّم المنتج؟","c-g"],
+    ["4","احترام الرأي","كيف نختلف بلطف ونطلب الدليل؟","c-o"],
+    ["5","الخصوصية والأمان","لا نصوّر الزميلات ولا ننشر روابط الحصة.","c-r"]]},
+  {t:"tip", text:"<b>فكرة عملية:</b> اجعلي أول حصة تعاونية مع طالباتك هي صياغة ميثاق فصلهن؛ الميثاق الذي تكتبه الطالبات بأنفسهن يلتزمن به أكثر."}
+ ],
+ reflect:"اكتبي بندًا إيجابيًا لكل محور يناسب طالباتك، وجهّزيه لورقة العمل 2.",
+ quiz:[
+  {q:"أي هذه بند جيد في الميثاق الرقمي؟", o:["ممنوع المقاطعة","أكتب سؤالي في الدردشة إذا كان المايك مشغولًا","يجب الالتزام بالأدب"], a:1, w:"البند الجيد يبدأ بفعل إيجابي ويصف سلوكًا يمكن ملاحظته."},
+  {q:"من الأفضل أن يصوغ ميثاق الفصل؟", o:["المعلمة وحدها","الطالبات بأنفسهن بإشراف المعلمة","إدارة المدرسة"], a:1, w:"المشاركة في الصياغة تزيد الالتزام بالبنود."},
+  {q:"أي بند يندرج تحت محور الخصوصية والأمان؟", o:["أرفع يدي قبل الحديث","لا أصوّر زميلاتي ولا أنشر رابط الحصة","أختصر رسائلي في الدردشة"], a:1, w:"الخصوصية تحمي صور الطالبات وروابط الحصص من التداول."}
+ ]}
+];
+
+/* mock items: [x,y,w,h,cls,text]  pins: [n,x,y]  (x,y,w,h in % of the screen) */
+const M = {
+g1:{items:[
+ [0,0,100,11,"m-bar",""],[87,2,11,7,"m-btn","الدردشة"],[75,2,11,7,"m-btn","الأشخاص"],[63,2,11,7,"m-btn","رفع اليد"],[51,2,11,7,"m-btn hl","الغرف"],[39,2,11,7,"m-btn","المزيد"],[2,2,10,7,"m-red","مغادرة"],[13,2,11,7,"m-btn","الكاميرا"],
+ [0,11,100,89,"m-bar",""],
+ [3,15,18,24,"m-tile on","هند"],[22,15,18,24,"m-tile","ريم"],[41,15,18,24,"m-tile on","سارة"],[3,41,18,24,"m-tile","نورة"],[22,41,18,24,"m-tile on","لمى"],[41,41,18,24,"m-tile","جود"],[3,67,18,24,"m-tile","دانة"],[22,67,18,24,"m-tile on","أروى"],[41,67,18,24,"m-tile","ليان"],
+ [62,14,36,83,"m-panel",""],[64,16,32,6,"m-title","الغرف الفرعية"],
+ [64,24,32,7,"m-row","عدد الغرف: 5 · التعيين: يدوي"],[64,33,32,7,"m-row","إعدادات الغرف: المؤقت 10 د"],
+ [64,42,32,6,"m-row","المجرة"],[64,49,32,6,"m-row","المنارة"],[64,56,32,6,"m-row","الواحة"],[64,63,32,6,"m-row","البوصلة"],[64,70,32,6,"m-row","النخلة"],
+ [80,80,16,7,"m-pbtn g","فتح"],[64,80,15,7,"m-pbtn o","إعلان"],[64,88,32,6,"m-pbtn o","إغلاق الغرف"]],
+ pins:[[1,62.5,12.5],[2,97,27],[3,97,36],[4,97,56],[5,97,91]]},
+g2:{items:[
+ [92,0,8,100,"m-rail",""],[93.5,4,5,8,"m-railicon",""],[93.5,15,5,8,"m-railicon",""],[93.5,26,5,8,"m-railicon",""],
+ [66,0,26,100,"m-panel",""],[67,3,24,6,"m-title","الفرق"],[67,11,24,7,"m-row hl","معًا عن بُعد  ⋯"],[69,20,22,6,"m-row","عام"],[69,27,22,6,"m-row","المكتبة"],[69,34,22,6,"m-row","المجرة · خاصة"],[69,41,22,6,"m-row","المنارة · خاصة"],
+ [2,2,62,9,"m-bar2",""],[3,3.5,40,6,"m-row hl","مثبَّت: تعليمات نشاط اليوم"],
+ [10,20,48,66,"m-panel",""],[12,23,44,7,"m-title","إضافة قناة"],[12,32,44,7,"m-input","اسم القناة: المجرة"],[12,41,44,7,"m-input","الخصوصية: خاصة ▾"],[12,50,44,7,"m-input","الأعضاء: هند، ريم، سارة، نورة، لمى"],[12,59,44,7,"m-text","لا يرى القناة الخاصة إلا أعضاؤها"],[34,72,22,8,"m-pbtn","إنشاء"],[12,72,20,8,"m-pbtn o","إلغاء"]],
+ pins:[[1,91,14],[2,57,44],[3,57,53],[4,44,6]]},
+g3:{items:[
+ [0,0,100,10,"m-bar",""],[87,2,11,6,"m-btn","الدردشة"],[75,2,11,6,"m-btn","الأشخاص"],[63,2,11,6,"m-btn hl","مشاركة"],[2,2,10,6,"m-red","مغادرة"],
+ [52,11,34,22,"m-panel",""],[54,13,30,5,"m-text","مشاركة المحتوى"],[54,19,14,11,"m-row","الشاشة"],[70,19,14,11,"m-row hl","Whiteboard"],
+ [2,36,96,62,"m-area",""],[80,38,17,6,"m-pbtn o","⚙ الإعدادات"],[62,38,17,6,"m-pbtn o","تصدير صورة"],
+ [79,46,18,6,"m-title","المجرة"],[60,46,18,6,"m-title","المنارة"],[41,46,18,6,"m-title","الواحة"],[22,46,18,6,"m-title","البوصلة"],[3,46,18,6,"m-title","النخلة"],
+ [80,54,16,10,"m-note n1","أدوار محددة"],[80,66,16,10,"m-note n1","منتج مرئي"],[61,54,16,10,"m-note n2","مؤقت مثبت"],[61,66,16,10,"m-note n2","زيارة المعلمة"],[42,54,16,10,"m-note n3","لون لكل طالبة"],[23,54,16,10,"m-note n4","مهام غير متزامنة"],[4,54,16,10,"m-note n5","OneNote"],[42,66,16,10,"m-note n3","سؤال عشوائي"],[23,66,16,10,"m-note n4","الدردشة بدل الصوت"],
+ [52,82,44,7,"m-row","يمكن للآخرين التحرير: مفعّل ●"]],
+ pins:[[1,73,12],[2,72,24],[3,97,47],[4,97,85],[5,80,41]]},
+g4:{items:[
+ [0,0,100,10,"m-bar2",""],[78,2,18,6,"m-tab","منشورات"],[62,2,15,6,"m-tab","الملفات"],[36,2,25,6,"m-tab hl","دفتر ملاحظات الصف"],
+ [72,12,26,86,"m-panel",""],[73,14,24,6,"m-row","مكتبة المحتوى · للقراءة"],[73,22,24,6,"m-row hl","مساحة التعاون"],[76,30,21,6,"m-row","المجرة"],[76,37,21,6,"m-row","المنارة"],[76,44,21,6,"m-row","الواحة"],[73,53,24,6,"m-row","دفاتر الطالبات"],
+ [2,12,68,86,"m-area",""],[4,15,64,7,"m-title","المجرة · مصفوفة مقارنة مصادر الطاقة"],
+ [36,25,31,9,"m-note n1","الشمسية: هند"],[4,25,31,9,"m-note n2","الرياح: ريم"],[36,36,31,9,"m-note n3","المائية: سارة"],[4,36,31,9,"m-note n5","الجوفية: نورة"],
+ [4,50,64,7,"m-text","المزايا والعيوب لكل مصدر…"],[34,64,34,14,"m-panel","تعليق المعلمة: أضفن مثالًا من منطقتنا"]],
+ pins:[[1,48,9],[2,98,24],[3,68,28],[4,69,68]]},
+g5:{items:[
+ [0,0,100,10,"m-bar2",""],[80,2,16,6,"m-tab hl","المهام"],[64,2,14,6,"m-tab","الدرجات"],[3,2,14,6,"m-pbtn","إنشاء ▾"],[3,10,14,7,"m-panel","مهمة"],
+ [20,13,77,85,"m-area",""],[23,16,70,7,"m-input","العنوان: مصفوفة مصادر الطاقة"],[23,25,70,12,"m-input","التعليمات: لكل عضوة مصدر تكتب عنه باسمها…"],
+ [23,40,70,7,"m-input","تعيين إلى: مجموعات الطالبات (5 مجموعات) ▾"],
+ [23,50,70,24,"m-panel",""],[25,52,66,6,"m-title","سلم التقدير · 3 معايير"],[71,59,20,6,"m-note n3","دقة المحتوى"],[48,59,21,6,"m-note n2","جودة المنتج"],[25,59,21,6,"m-note n1","الإسهام الفردي"],[25,67,66,5,"m-text","متميز · متقن · نامٍ · مبتدئ"],
+ [55,78,38,7,"m-input","موعد التسليم: الخميس 11:59 م"],[23,88,20,8,"m-pbtn g","تعيين"]],
+ pins:[[1,17,6],[2,94,26],[3,94,44],[4,92,55],[5,43,92]]},
+g6:{items:[
+ [0,0,100,10,"m-bar2",""],[78,2,18,6,"m-tab hl","الأسئلة"],[62,2,14,6,"m-tab","الردود"],[3,2,16,6,"m-pbtn","جمع الردود"],[21,2,8,6,"m-pbtn o","⋯"],
+ [20,13,60,10,"m-panel",""],[22,15,56,6,"m-title","اختبار قصير: المبادئ الخمسة"],
+ [20,26,60,52,"m-panel",""],[22,28,56,7,"m-title","1. «نغرق معًا أو ننجو معًا» تعبير عن مبدأ:"],
+ [24,37,52,7,"m-row","المسؤولية الفردية"],[24,46,52,7,"m-row hl","✓ الاعتماد المتبادل الإيجابي"],[24,55,52,7,"m-row","المهارات الاجتماعية"],[24,66,24,7,"m-input","النقاط: 2"],
+ [21,10,22,12,"m-panel","نسخ النموذج"]],
+ pins:[[1,79,18],[2,77,49],[3,44,16],[4,19,6]]},
+g7:{items:[
+ [51,0,49,100,"m-area",""],[53,3,45,7,"m-tab hl","Insights · نشاط الطالبات"],
+ [56,62,6,24,"m-chart",""],[64,52,6,34,"m-chart",""],[72,40,6,46,"m-chart",""],[80,58,6,28,"m-chart",""],[88,30,6,56,"m-chart",""],
+ [53,13,45,7,"m-row","قليلات النشاط هذا الأسبوع: ٣"],[53,21,45,6,"m-text","ليان · جود · دانة"],
+ [0,0,50,100,"m-bar",""],[2,3,46,7,"m-title","دردشة المجموعة"],
+ [3,14,44,58,"m-panel",""],[5,16,40,6,"m-title","مكوّن Loop: المعجم الجماعي"],[25,24,20,8,"m-note n1","المصطلح"],[5,24,19,8,"m-note n1","التعريف"],[25,33,20,8,"m-row","الاعتماد"],[5,33,19,8,"m-row","…"],[25,42,20,8,"m-row","المسؤولية"],[5,42,19,8,"m-row","…"],[5,52,40,6,"m-text","هند وريم تحرّران الآن"],
+ [3,78,30,8,"m-input","اكتبي رسالة…"],[34,78,13,8,"m-pbtn","+ Loop"]],
+ pins:[[1,98,6],[2,98,16],[3,47,18],[4,47,82]]}
+};
+
+const GUIDES = [
+{id:"g1", title:"الغرف الفرعية", tool:"Breakout Rooms", intro:"تقسمين الاجتماع إلى مجموعات صغيرة تتحدث في الوقت نفسه، ثم تعيدينهن للغرفة الرئيسة.",
+ steps:["ابدئي الاجتماع من تطبيق Teams المكتبي أو المتصفح (لا تُنشأ الغرف من الجوال)، ثم اضغطي <b>الغرف</b> في شريط الاجتماع.","حددي <b>عدد الغرف</b> وطريقة التعيين: تلقائي للسرعة، أو يدوي لمجموعات مقصودة.","من <b>إعدادات الغرف</b> فعّلي المؤقت والنقل التلقائي للمشاركات، وقرري السماح بالعودة للاجتماع الرئيس.","أعيدي تسمية الغرف بأسماء المجموعات، ثم اضغطي <b>فتح</b>، وأرسلي <b>إعلانًا</b> لكل الغرف عند الحاجة.","اضغطي <b>إغلاق الغرف</b> لإعادة الجميع إلى الاجتماع الرئيس."],
+ mistake:"فتح الغرف قبل تثبيت التعليمات في الدردشة؛ فالطالبة داخل الغرفة لا ترى شاشتك.", tip:"جهّزي الغرف مسبقًا من تفاصيل الاجتماع المجدول، فتبدأ الحصة والمجموعات جاهزة."},
+{id:"g2", title:"القنوات والقنوات الخاصة", tool:"Channels", intro:"مساحة دائمة لكل مجموعة فيها ملفاتها ودردشتها واجتماعاتها، لا يراها إلا أعضاؤها.",
+ steps:["من اسم الفريق اضغطي <b>⋯</b> ثم <b>إضافة قناة</b>.","اكتبي اسم المجموعة، واختاري الخصوصية <b>خاصة</b>.","أضيفي أعضاء المجموعة فقط، ثم اضغطي إنشاء.","ثبّتي تعليمات النشاط في أعلى القناة حتى تجدها الطالبات دائمًا."],
+ mistake:"إنشاء القناة «قياسية» بدل «خاصة»، فيراها كل الفصل.", tip:"لكل قناة اجتماع فوري خاص بها، تستطيع المجموعة استخدامه خارج وقت الحصة."},
+{id:"g3", title:"السبورة البيضاء", tool:"Whiteboard", intro:"مساحة تفكير مرئي يكتب عليها الجميع معًا: ملصقات، وخرائط ذهنية، وتصنيف أفكار.",
+ steps:["أثناء الاجتماع اضغطي <b>مشاركة</b> ثم اختاري <b>Whiteboard</b>.","قسّمي السبورة بمساحة لكل مجموعة، أو أضيفي قالب ملصقات جاهزًا.","من <b>الإعدادات</b> فعّلي «يمكن للآخرين التحرير».","اطلبي من كل طالبة لونًا أو اسمًا على ملصقها لتظهر مساهمتها.","بعد الجلسة <b>صدّري السبورة صورةً</b> وانشريها في القناة."],
+ mistake:"نسيان تفعيل التحرير، فتبقى الطالبات يشاهدن فقط.", tip:"السبورة منتج مرئي ممتاز للغرف الفرعية: كل مجموعة تملأ مساحتها."},
+{id:"g4", title:"دفتر ملاحظات الصف", tool:"OneNote Class Notebook", intro:"دفتر رقمي مشترك: مكتبة للمراجع، ومساحة تعاون لكل مجموعة، ودفتر خاص لكل طالبة.",
+ steps:["في الفريق الصفي افتحي تبويب <b>دفتر ملاحظات الصف</b> وأكملي إعداده.","أنشئي قسمًا لكل مجموعة داخل <b>مساحة التعاون</b>، وضعي المراجع في مكتبة المحتوى للقراءة فقط.","اطلبي من كل طالبة الكتابة باسمها أو بلونها في صفحة المجموعة.","تابعي الصفحات لحظيًا أثناء العمل، واتركي <b>تعليقًا</b> قصيرًا يوجّه المجموعة."],
+ mistake:"وضع صفحات المجموعات في مكتبة المحتوى، فلا تستطيع الطالبات الكتابة فيها.", tip:"متابعة الصفحات أثناء الكتابة تغنيك عن زيارة كل غرفة."},
+{id:"g5", title:"المهام الجماعية وسلم التقدير", tool:"Assignments", intro:"مهمة تُسلَّم باسم المجموعة، وتُصحَّح بسلم تقدير يمكن تعديل درجة كل طالبة فيه.",
+ steps:["من تبويب <b>المهام</b> اضغطي <b>إنشاء</b> ثم <b>مهمة</b>.","اكتبي العنوان والتعليمات والمنتج المطلوب ودور كل عضوة.","من <b>تعيين إلى</b> اختاري تقسيم الطالبات إلى مجموعات.","أضيفي <b>سلم تقدير</b>: معايير ومستويات وأوزان، أحدها للإسهام الفردي.","حددي موعد التسليم ثم اضغطي <b>تعيين</b>. بعد التسليم صححي بالسلم، وعدّلي درجة من تفاوت إسهامها."],
+ mistake:"تعيين المهمة لكل طالبة فرديًا، فتصلك 30 نسخة بدل 6.", tip:"شاركي سلم التقدير مع الطالبات قبل بدء العمل."},
+{id:"g6", title:"Microsoft Forms", tool:"Forms", intro:"اختبارات قصيرة تُصحَّح تلقائيًا، واستبانات لتقييم الأقران والتقييم الذاتي.",
+ steps:["اختاري <b>اختبار قصير</b> للدرجات، أو <b>نموذج</b> للاستبانات.","أضيفي الأسئلة، وحددي <b>الإجابة الصحيحة والنقاط</b> لكل سؤال.","للتقييم المتكرر <b>انسخي النموذج</b> بدل إعادة إنشائه.","اضغطي <b>جمع الردود</b> وشاركي الرابط، ثم اعرضي النتائج المجمعة بعد الانتهاء."],
+ mistake:"عرض النتائج بالأسماء أمام الفصل؛ اعرضيها مجمعة دون أسماء.", tip:"نموذج تقييم الأقران الثابت: «قيّمي إسهام كل زميلة من 1 إلى 4» مع سؤال مفتوح."},
+{id:"g7", title:"Insights وصفحات Loop", tool:"Insights · Loop", intro:"Insights يكشف نشاط كل طالبة، وLoop يصنع جداول وقوائم يحررها الجميع في الوقت نفسه.",
+ steps:["أضيفي <b>Insights</b> تبويبًا في الفريق الصفي لرؤية نشاط الطالبات في القنوات والاجتماعات والمهام.","راجعي قائمة <b>قليلات النشاط</b>، وتواصلي معهن مبكرًا.","أنشئي <b>مكوّن Loop</b> (جدول أو قائمة) في الدردشة أو القناة، فيحرره الجميع معًا.","استخدمي Loop للمنتجات القصيرة: مصفوفة الاختيار، والمعجم الجماعي، وقوائم الأفكار."],
+ mistake:"استخدام Insights للعقاب؛ هو أداة للدعم المبكر.", tip:"جدول Loop في دردشة المجموعة منتج سريع للطاولة المستديرة."}
+];
+
+const TASKS = [
+ {n:"1", title:"نشاط تعاوني لدرسي", ref:"ورقة العمل 3", what:"ملف Word أو PDF أو صورة واضحة لورقة العمل مكتملة.", items:["الاستراتيجية المختارة ومبرر اختيارها","هدف النشاط والمهمة المعروضة على الطالبات","الخطوات وزمن كل خطوة، وأداة Teams لكل خطوة","كيف تضمنين المسؤولية الفردية","المنتج الذي سترينه في النهاية"]},
+ {n:"2", title:"مهمة جماعية بسلم تقدير", ref:"ورقة العمل 6", what:"لقطتا شاشة من Teams: المهمة مُعيَّنة لمجموعات، وسلم التقدير.", items:["المهمة معيّنة لمجموعات لا لطالبات فرديات","سلم تقدير من 3 معايير على الأقل","معيار واحد يقيس الإسهام الفردي والتعاون","وصف سلوكي لكل مستوى"]},
+ {n:"3", title:"المشروع الختامي: درس تعاوني كامل", ref:"ورقة العمل 7", what:"خطة الدرس كاملة (ملف)، وتسجيل لمقطع تنفيذ مدته 7 دقائق تقريبًا، أو تنفيذه مباشرة في المعرض الافتراضي.", items:["الأهداف بصيغة سلوكية","الاستراتيجية وتشكيل المجموعات والأدوار","خطوات الحصة بالدقيقة وأداة Teams لكل خطوة","التقييم بالعدسات الأربع","خطة بديلة تقنية"]},
+ {n:"4", title:"ميثاق فصلي الرقمي", ref:"ورقة العمل 2", what:"صورة أو ملف للميثاق، ويُفضَّل صورة من نشره في قناة فصلك.", items:["بند إيجابي لكل محور من المحاور الخمسة","بنود قصيرة وقابلة للملاحظة","مناسب لعمر طالباتك"]}
+];
+const RUBRIC = [["وضوح الأهداف ومواءمتها","أهداف سلوكية قابلة للقياس، والنشاط يخدمها مباشرة"],["ملاءمة الاستراتيجية","اختيار مبرر يناسب الهدف والزمن والمرحلة، وخطواته كاملة"],["مبادئ التعلم التعاوني","المبادئ الخمسة ظاهرة في التصميم"],["توظيف أدوات Teams","الأداة تخدم الهدف، مع تعليمات مثبتة وخطة بديلة"],["التقييم والإسهام الفردي","تقييم متعدد العدسات يكشف إسهام كل طالبة"],["التنفيذ والزمن والتفاعل","تنفيذ سلس في الزمن، وتفاعل جميع الطالبات"]];
+
+const PEOPLE=[{name:"أ. نوره عوضه الحربي",short:"أ. نوره",tel:"0500889914"},{name:"أ. جميلة نايف الحربي",short:"أ. جميلة",tel:"0505251124"}];
+const waLink=(t,msg)=>"https://wa.me/966"+t.slice(1)+(msg?"?text="+encodeURIComponent(msg):"");
+const OFFER="نقدّم برامج تدريبية متنوعة في الذكاء الاصطناعي، وتوظيف التقنية في التعليم والإدارة، وبرامج تربوية مختلفة.";
+const ABOUT_WHO="باحثتا دكتوراه في تقنيات التعليم، وخبيرتان في المجال.";
+function aboutView(){
+  return `<div class="view" style="display:grid;gap:18px"><section class="hero"><span class="k">عن مدربتي الدورة</span><h1 style="font-size:clamp(30px,6vw,46px)">نوره وجميلة الحربي</h1>
+   <p style="font-size:19px;color:#F6F5FB;font-weight:700">${ABOUT_WHO}</p><p style="margin-top:10px">${OFFER}</p></section>
+   <div class="grid g3">${[["الذكاء الاصطناعي في التعليم","توظيف أدوات الذكاء الاصطناعي في التخطيط والتدريس والتقييم.","c-v"],["توظيف التقنية في التعليم والإدارة","منصات التعليم عن بُعد، والتعلم التعاوني الرقمي، وأتمتة العمل الإداري.","c-t"],["برامج تربوية متنوعة","برامج تدريبية تربوية مصمّمة حسب احتياج مدرستك وفريقك.","c-o"]].map(([t,p,c],i)=>`<div class="card"><div class="num ${c}">${i+1}</div><h3>${t}</h3><p>${p}</p></div>`).join("")}</div>
+   <div class="card" style="text-align:center;padding:24px"><h2 style="font-size:24px;margin-bottom:6px">هل تريدين هذا البرنامج أو غيره لمدرستك؟</h2><p style="margin:0 0 16px;color:var(--body)">تواصلي معنا مباشرة لترتيب برنامج تدريبي حضوري أو عن بُعد.</p>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">${PEOPLE.map(x=>`<a class="btn wa" href="${waLink(x.tel,"السلام عليكم، أرغب في الاستفسار عن برامجكم التدريبية.")}" target="_blank" rel="noopener noreferrer">واتساب ${x.short}</a>`).join("")}</div></div>
+   <div class="pager" style="margin-top:6px"><a class="btn ghost" href="#tasks">→ التطبيقات العملية</a><a class="btn ghost" href="#home">الرئيسية ←</a></div></div>`;
+}
+function footHTML(){
+  return `<div class="footIn"><div class="fBrand"><b>معًا عن بُعد</b><span>${OFFER}</span><span>مدربتا الدورة ${ABOUT_WHO}</span></div>
+   <div class="fPeople">${PEOPLE.map(x=>`<div class="fp"><b>${x.name}</b><a class="fnum" href="tel:${x.tel}" dir="ltr">${x.tel}</a><a class="fwa" href="${waLink(x.tel,"السلام عليكم، أرغب في الاستفسار عن برامجكم التدريبية.")}" target="_blank" rel="noopener noreferrer" aria-label="واتساب ${x.short}">واتساب</a></div>`).join("")}</div></div>
+   <div class="fSmall">المدرسة 48 · مديرة المدرسة أ. غزوى العتيبي · <a href="#about">عن المدربتين</a></div>`;
+}
+/* ================= STATE ================= */
+const KEY="maan-progress-v1";
+let S={done:{},quiz:{},notes:{},checks:{}};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const ORDER=[...UNITS.map(u=>u.id),...GUIDES.map(g=>g.id),"tasks"];
+const TITLE=id=> id==="home"?"الرئيسية": id==="about"?"عن المدربتين": id==="tasks"?"التطبيقات العملية": (UNITS.find(u=>u.id===id)||GUIDES.find(g=>g.id===id)).title;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ================= RENDER ================= */
+const $=s=>document.querySelector(s);
+function renderMap(cur){
+  const a=(id,label)=>`<a href="#${id}" class="${cur===id?'on':''} ${S.done[id]?'done':''}"><span class="dot">✓</span><span>${label}</span></a>`;
+  $("#map").innerHTML=`<h4>البداية</h4><a href="#home" class="${cur==='home'?'on':''}"><span class="dot" style="border-color:var(--gold)"></span><span>الرئيسية وخريطة الدورة</span></a>
+  <h4>الجزء الأول · التعلم الذاتي</h4>${UNITS.map((u,i)=>a(u.id,`${i+1}. ${u.title}`)).join("")}
+  <h4>الجزء الثاني · الدليل المصور</h4>${GUIDES.map((g,i)=>a(g.id,`${i+1}. ${g.title}`)).join("")}
+  <h4>الجزء الثالث</h4>${a("tasks","التطبيقات العملية")}
+  <h4>تواصلي معنا</h4><a href="#about" class="${cur==='about'?'on':''}"><span class="dot" style="border-color:var(--gold)"></span><span>عن المدربتين وبرامجنا</span></a>`;
+  const n=ORDER.filter(id=>S.done[id]).length, pct=Math.round(n/ORDER.length*100);
+  $("#progTxt").textContent=`${n} من ${ORDER.length}`; $("#progBar i").style.width=pct+"%"; $("#progBar").setAttribute("aria-valuenow",pct);
+}
+function pager(id){
+  const i=ORDER.indexOf(id), prev=ORDER[i-1], next=ORDER[i+1]||(id==="tasks"?"about":null);
+  return `<div class="pager">
+    <button class="btn ${S.done[id]?'done':'main'}" id="doneBtn">${S.done[id]?'✓ أنهيتِ هذا الجزء':'أنهيت هذا الجزء'}</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">${prev?`<a class="btn ghost" href="#${prev}">→ السابق</a>`:`<a class="btn ghost" href="#home">→ الرئيسية</a>`}${next?`<a class="btn ghost" href="#${next}">التالي: ${esc(TITLE(next))} ←</a>`:''}</div></div>`;
+}
+function block(b,i){
+  const d=`style="animation-delay:${Math.min(i*.08,.5)}s"`;
+  const H=b.h?`<h2>${b.h}</h2>`:"";
+  switch(b.t){
+   case "sec": return `<section class="sec rv" ${d}>${H}${b.p.map(p=>`<p>${p}</p>`).join("")}</section>`;
+   case "cmp": return `<section class="sec rv" ${d}>${H}<div class="cmp"><div class="a"><h3>العمل الجماعي التقليدي</h3><ul>${b.a.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="b"><h3>التعلم التعاوني</h3><ul>${b.b.map(x=>`<li>${x}</li>`).join("")}</ul></div></div></section>`;
+   case "cmp2": return `<section class="sec rv" ${d}>${H}<div class="pair"><div class="q" style="background:var(--coralL)"><small>قبل</small>${b.a}</div><div class="ar">←</div><div class="s" style="font-weight:700"><small>بعد</small>${b.b}</div></div></section>`;
+   case "quote": return `<section class="sec rv" ${d}>${H}<div class="quote"><p>${b.text}</p></div></section>`;
+   case "tip": return `<section class="sec rv" ${d}><div class="tip">${b.text}</div></section>`;
+   case "cards": return `<section class="sec rv" ${d}>${H}<div class="grid ${b.cols}">${b.items.map(([n,t,p,c])=>`<div class="card"><div class="num ${c}">${n}</div><h3>${t}</h3><p>${p}</p></div>`).join("")}</div></section>`;
+   case "strats": return `<section class="sec rv" ${d}>${H}<div class="grid g2">${b.items.map(([t,p,c],k)=>`<div class="card"><div class="num ${c}">${k+1}</div><h3>${t}</h3><p>${p}</p></div>`).join("")}</div></section>`;
+   case "pairs": return `<section class="sec rv" ${d}>${H}${b.items.map(([q,c,s])=>`<div class="pair"><div class="q"><small>${c}</small>${q}</div><div class="ar">←</div><div class="s">${s}</div></div>`).join("")}</section>`;
+   case "table": return `<section class="sec rv" ${d}>${H}<div class="tbl"><table><thead><tr>${b.head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`;
+   case "pills": return `<section class="sec rv" ${d}>${H}<div class="pills">${b.items.map(x=>`<span class="pill">${x}</span>`).join("")}</div></section>`;
+   case "formula": return `<section class="sec rv" ${d}>${H}<div class="formula" role="img" aria-label="منتج المجموعة 50٪، أداء فردي 30٪، تقييم الأقران 15٪، التقييم الذاتي 5٪"><div style="flex:50;background:#1BA3B8">50%</div><div style="flex:30;background:#4B4FB8">30%</div><div style="flex:15;background:#2E9E6E">15%</div><div style="flex:5;background:#E8A93B"></div></div>
+      <div class="grid g4"><div class="card"><span class="tag" style="color:var(--teal)">50%</span><h3>منتج المجموعة</h3><p>بسلم التقدير</p></div><div class="card"><span class="tag" style="color:var(--violet)">30%</span><h3>أداء فردي</h3><p>سؤال عشوائي أو اختبار قصير</p></div><div class="card"><span class="tag" style="color:var(--green)">15%</span><h3>تقييم الأقران</h3><p>نموذج Forms</p></div><div class="card"><span class="tag" style="color:var(--goldD)">5%</span><h3>التقييم الذاتي</h3><p>سؤال تأمل قصير</p></div></div></section>`;
+  }
+  return "";
+}
+function unitView(u,idx){
+  const qs=S.quiz[u.id]||{};
+  return `<div class="view"><div class="uhead"><span class="crumb">الجزء الأول · الوحدة ${idx+1} من ${UNITS.length}</span><h1>${u.title}</h1>
+   <div class="meta"><span class="chip">⏱ ${u.mins} دقائق قراءة</span><span class="chip">اختبار قصير: 3 أسئلة</span></div></div>
+   <div class="goal"><b>هدف الوحدة:</b> ${u.goal}</div>
+   ${u.blocks.map(block).join("")}
+   <section class="sec"><div class="reflect"><h2>توقفي وفكري</h2><p style="margin:6px 0 0;color:var(--body)">${u.reflect}</p>
+     <label for="note-${u.id}" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">إجابتك</label>
+     <textarea id="note-${u.id}" placeholder="اكتبي إجابتك هنا… تُحفظ في متصفحك فقط">${esc(S.notes[u.id]||"")}</textarea><div class="saved" id="saved"></div></div></section>
+   <section class="sec"><h2>اختبري فهمك <span class="score" id="score"></span></h2><div class="quiz">
+    ${u.quiz.map((q,k)=>{const ans=qs[k]; return `<div class="qq" data-k="${k}"><div class="qt">${k+1}. ${q.q}</div>
+      ${q.o.map((o,j)=>`<button class="opt ${ans!==undefined?(j===q.a?'ok':(j===ans?'no':'')):''}" data-j="${j}" ${ans!==undefined?'disabled':''}>${o}</button>`).join("")}
+      ${ans!==undefined?`<div class="why ${ans===q.a?'':'bad'}"><b>${ans===q.a?'إجابة صحيحة.':'ليست هذه.'}</b> ${q.w}</div>`:''}</div>`}).join("")}
+   </div></section>${pager(u.id)}</div>`;
+}
+function mockHTML(m){
+  return `<div class="mock" role="img" aria-label="رسم توضيحي لشاشة Teams مع أرقام الخطوات">${m.items.map(([x,y,w,h,c,t])=>`<div class="b ${c}" style="left:${x}%;top:${y}%;width:${w}%;height:${h}%">${t}</div>`).join("")}${m.pins.map(([n,x,y])=>`<div class="pin" style="right:${100-x}%;top:${y}%">${n}</div>`).join("")}</div>`;
+}
+function guideView(g,idx){
+  return `<div class="view"><div class="uhead"><span class="crumb">الجزء الثاني · الدليل المصور ${idx+1} من ${GUIDES.length}</span><h1>${g.title}</h1>
+   <div class="meta"><span class="chip">${g.tool}</span><span class="chip">${g.steps.length} خطوات</span></div></div>
+   <div class="goal">${g.intro}</div>
+   <section class="sec rv"><div class="mockwrap">${mockHTML(M[g.id])}<p class="cap">رسم توضيحي مبسّط بألوان الدورة؛ قد تختلف مواضع الأزرار وتسمياتها قليلًا حسب إصدار Teams لديك. الأرقام تطابق الخطوات أدناه.</p></div></section>
+   <section class="sec rv"><h2>الخطوات</h2><ol class="steps">${g.steps.map(s=>`<li><span>${s}</span></li>`).join("")}</ol></section>
+   <section class="sec rv"><div class="warn"><b>خطأ شائع:</b> ${g.mistake}</div></section>
+   <section class="sec rv"><div class="tip"><b>نصيحة:</b> ${g.tip}</div></section>${pager(g.id)}</div>`;
+}
+function tasksView(){
+  const ck=(id,t)=>`<label class="check"><input type="checkbox" id="ck-${id}" ${S.checks[id]?'checked':''}><span>${t}</span></label>`;
+  return `<div class="view"><div class="uhead"><span class="crumb">الجزء الثالث</span><h1>التطبيقات العملية</h1>
+   <div class="meta"><span class="chip">4 تطبيقات</span><span class="chip">الإرسال عبر واتساب</span></div></div>
+   <div class="goal"><b>بعد إنهاء الجزأين الأول والثاني</b> نفّذي التطبيقات الأربعة على درس حقيقي من مادتك، ثم سلّميها لمدربتي الدورة.</div>
+   ${TASKS.map(t=>`<div class="task rv"><span class="tag" style="color:var(--goldD);font-weight:800;font-size:14px">التطبيق ${t.n} · ${t.ref}</span><h3>${t.title}</h3><div class="what"><b>ما تسلّمينه:</b> ${t.what}</div><b style="font-size:15px">يجب أن يتضمن:</b><ul>${t.items.map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("")}
+   <section class="sec rv"><h2>سلم تقدير المشروع الختامي</h2><p>ستة معايير، لكل معيار 4 درجات (متميز 4 · متقن 3 · نامٍ 2 · مبتدئ 1). معيار النجاح 20 من 24.</p>
+    <div class="tbl"><table><thead><tr><th>المعيار</th><th>ما يبدو عليه المستوى «متميز»</th></tr></thead><tbody>${RUBRIC.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</tbody></table></div></section>
+   <section class="sec rv"><h2>قبل أن تسلّمي</h2>
+     ${ck("c1","المبادئ الخمسة ظاهرة في تصميمي")}${ck("c2","لكل طالبة دور ومسؤولية لا يمكن الاختفاء منها")}${ck("c3","التعليمات مكتوبة وسأثبّتها قبل فتح الغرف")}${ck("c4","الزمن واقعي ومجموعه يساوي زمن الحصة")}${ck("c5","التقييم يميز الإسهام الفردي")}
+   </section>
+   <section class="sec rv" id="submit"><h2>أرسلي تطبيقك للمدربتين</h2><div class="task"><p style="margin:0 0 12px;color:var(--body)">بعد إنجاز التطبيق أرسلي ملفك أو رابطه عبر واتساب لإحدى مدربتي الدورة، واكتبي اسمك ومادتك ورقم التطبيق، وستصلك الملاحظات.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">${PEOPLE.map(x=>`<a class="btn wa" href="${waLink(x.tel,"السلام عليكم، أرسل تطبيقي في دورة «معًا عن بُعد».")}" target="_blank" rel="noopener noreferrer">واتساب ${x.short}</a>`).join("")}</div></div></section>
+   ${pager("tasks")}</div>`;
+}
+/* ================= SUBMISSIONS (db) ================= */
+const STAT={new:["جديد","c-o"],review:["قيد المراجعة","c-v"],done:["مكتمل","c-g"]};
+const LV=["","مبتدئ","نامٍ","متقن","متميز"];
+const safeUrl=u=>/^https?:\/\/\S+$/i.test(u||"")?u:"";
+const fmtDate=t=>t?new Date(t).toLocaleDateString("ar-SA-u-nu-latn",{day:"numeric",month:"long",hour:"numeric",minute:"2-digit"}):"";
+function formHTML(){
+  if(!DB||!ME) return `<div class="warn"><b>النموذج غير متاح في هذا العرض.</b> يعمل نموذج التسليم عند فتح المنصة من حسابك المسجَّل. إلى أن يعمل، سلّمي عبر Teams: افتحي فريق الدورة ← المهام ← المهمة باسم التطبيق ← إرفاق ← تسليم، وسمّي الملف: <b>اسمك – رقم التطبيق</b>.</div>`;
+  const v=k=>esc(MY[k]||(REG&&REG[k])||"");
+  return `<form class="task" id="subForm" style="display:grid;gap:12px">
+   <div class="grid g3">
+    <label class="fld">الاسم<input name="name" required maxlength="80" value="${v("name")}"></label>
+    <label class="fld">المادة<input name="subject" required maxlength="60" value="${v("subject")}"></label>
+    <label class="fld">المرحلة<select name="stage" required>${["","الابتدائية","المتوسطة","الثانوية"].map(s=>`<option ${MY.stage===s?'selected':''} value="${s}">${s||"اختاري"}</option>`).join("")}</select></label>
+   </div>
+   <label class="fld">نوع التسليم<select name="task" required>${TASKS.map(t=>`<option value="t${t.n}">التطبيق ${t.n}: ${t.title} (${t.ref})</option>`).join("")}</select></label>
+   <label class="fld">وصف مختصر لما نفّذتِه<textarea name="desc" required maxlength="3000" placeholder="الدرس، والاستراتيجية، وأدوات Teams، وما لاحظتِه أثناء التنفيذ…"></textarea></label>
+   <label class="fld">رابط الملف أو الصور<input name="link" type="url" inputmode="url" dir="ltr" placeholder="https://…" maxlength="600"></label>
+   <p class="cap" style="margin:-4px 0 0">ارفعي ملفك على OneDrive أو في ملفات فريق الدورة على Teams، ثم اختاري «مشاركة» وانسخي الرابط مع صلاحية العرض للمدربتين. إذا سلّمتِ التطبيق نفسه مرة أخرى يحلّ التسليم الجديد محل السابق.</p>
+   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn main" type="submit">إرسال التسليم</button><span class="saved" id="subMsg" role="status"></span></div>
+  </form>`;
+}
+function myStatusHTML(){
+  if(!DB||!ME) return `<p class="cap">تظهر هنا تسليماتك وحالتها عند تفعيل النموذج.</p>`;
+  const items=MY.items||{}, ks=Object.keys(items).sort();
+  if(!ks.length) return `<p class="cap">لم تسلّمي شيئًا بعد.</p>`;
+  return ks.map(k=>{const it=items[k], t=TASKS.find(x=>"t"+x.n===k), r=MYREV[k]||{}, st=STAT[r.status||"new"], sc=(r.scores||[]).filter(Boolean);
+    return `<div class="task"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h3 style="font-size:18px">التطبيق ${t.n}: ${t.title}</h3><span class="chip ${st[1]}">${st[0]}</span></div>
+     <p class="cap" style="margin:4px 0 0">أُرسل ${fmtDate(it.at)}${safeUrl(it.link)?` · <a href="${esc(safeUrl(it.link))}" target="_blank" rel="noopener noreferrer">الرابط</a>`:''}</p>
+     ${r.note?`<div class="tip" style="margin-top:10px"><b>ملاحظة المدربتين:</b> ${esc(r.note)}</div>`:''}
+     ${sc.length===6?`<p style="margin:10px 0 0;font-weight:800;color:var(--violet)">درجتك في سلم التقدير: ${sc.reduce((a,b)=>a+b,0)} من 24</p>`:''}</div>`}).join("");
+}
+function adminView(){
+  return `<div class="view"><div class="uhead"><span class="crumb">خاص بالمدربتين</span><h1>لوحة المدربتين</h1>
+   <div class="meta"><span class="chip">لا تراها المتدربات</span></div></div>
+   <div id="regBox"></div>
+   <div id="adminStats"></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0"><label class="fld" style="min-width:220px">التطبيق<select id="fTask"><option value="">الكل</option>${TASKS.map(t=>`<option value="t${t.n}">التطبيق ${t.n}</option>`).join("")}</select></label>
+   <label class="fld" style="min-width:180px">الحالة<select id="fStat"><option value="">الكل</option>${Object.entries(STAT).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join("")}</select></label></div>
+   <div id="adminRows"></div><div id="adminDetail"></div></div>`;
+}
+function rowsData(){
+  const out=[]; ALL.forEach(s=>Object.entries(s.items||{}).forEach(([k,it])=>{const r=(REVS[s.id]||{})[k]||{}; out.push({uid:s.id,k,it,s,r,status:r.status||"new"});}));
+  return out.sort((a,b)=>(b.it.at||0)-(a.it.at||0));
+}
+function renderAdmin(){
+  const box=$("#adminRows"); if(!box) return;
+  const rb=$("#regBox"); rb.innerHTML=regAdminHTML();
+  rb.querySelectorAll("[data-acc]").forEach(b=>b.onclick=async()=>{const [uid,st]=b.dataset.acc.split("|"); b.disabled=true;
+    try{await DB.doc("access/"+uid).set({status:st,at:Date.now()});}catch(e){b.disabled=false; b.textContent="تعذّر، أعيدي المحاولة";}});
+  const all=rowsData(), ft=$("#fTask").value, fs=$("#fStat").value;
+  const c=s=>all.filter(x=>x.status===s).length;
+  $("#adminStats").innerHTML=`<div class="grid g4">${[["المتدربات",ALL.length,"c-v"],["جديد",c("new"),"c-o"],["قيد المراجعة",c("review"),"c-t"],["مكتمل",c("done"),"c-g"]].map(([l,n,k])=>`<div class="card"><div class="num ${k}" style="width:auto;height:auto;padding:2px 12px;border-radius:10px;display:inline-grid;font-size:24px">${n}</div><p>${l}</p></div>`).join("")}</div>`;
+  const rows=all.filter(x=>(!ft||x.k===ft)&&(!fs||x.status===fs));
+  if(!DB||!CAN){box.innerHTML=`<div class="warn">اللوحة متاحة للمدربتين فقط.</div>`;return;}
+  box.innerHTML=rows.length?`<div class="tbl"><table><thead><tr><th>المتدربة</th><th>المادة · المرحلة</th><th>التطبيق</th><th>تاريخ الإرسال</th><th>الحالة</th><th></th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.s.name||"—")}</td><td>${esc(x.s.subject||"")} · ${esc(x.s.stage||"")}</td><td>${x.k.slice(1)}</td><td>${fmtDate(x.it.at)}</td><td><span class="chip ${STAT[x.status][1]}">${STAT[x.status][0]}</span></td><td><button class="btn ghost" style="padding:6px 12px;font-size:14px" data-open="${esc(x.uid)}|${x.k}">مراجعة</button></td></tr>`).join("")}</tbody></table></div>`:`<p class="cap">لا توجد تسليمات${ft||fs?" بهذا التصفية":" بعد"}.</p>`;
+  box.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openReview(...b.dataset.open.split("|")));
+}
+function openReview(uid,k){
+  const s=ALL.find(x=>x.id===uid); if(!s) return; const it=(s.items||{})[k], r=(REVS[uid]||{})[k]||{}, t=TASKS.find(x=>"t"+x.n===k), sc=r.scores||[];
+  const d=$("#adminDetail");
+  d.innerHTML=`<div class="task" style="margin-top:20px;border:2px solid var(--violet)"><span class="crumb">التطبيق ${t.n} · ${t.ref}</span><h3>${esc(s.name||"")} — ${t.title}</h3>
+   <p class="cap" style="margin:2px 0 10px">${esc(s.subject||"")} · ${esc(s.stage||"")} · ${fmtDate(it.at)}</p>
+   <div class="what" style="white-space:pre-wrap">${esc(it.desc||"")}</div>
+   ${safeUrl(it.link)?`<p><a class="btn ghost" href="${esc(safeUrl(it.link))}" target="_blank" rel="noopener noreferrer">فتح الملف ↗</a></p>`:'<p class="cap">لا يوجد رابط.</p>'}
+   <label class="fld">الحالة<select id="rvStat">${Object.entries(STAT).map(([k2,v])=>`<option value="${k2}" ${ (r.status||"new")===k2?'selected':''}>${v[0]}</option>`).join("")}</select></label>
+   ${k==="t3"?`<h3 style="font-size:17px;margin:14px 0 6px">سلم التقدير <span class="score" id="rvTot"></span></h3><div style="display:grid;gap:8px">${RUBRIC.map((c,i)=>`<label class="fld" style="grid-template-columns:minmax(0,1fr) 130px;display:grid;align-items:center;gap:10px"><span>${c[0]}</span><select data-sc="${i}"><option value="0">—</option>${[4,3,2,1].map(n=>`<option value="${n}" ${sc[i]===n?'selected':''}>${n} · ${LV[n]}</option>`).join("")}</select></label>`).join("")}</div>`:''}
+   <label class="fld" style="margin-top:12px">ملاحظة للمتدربة (تراها في صفحتها)<textarea id="rvNote" maxlength="2000">${esc(r.note||"")}</textarea></label>
+   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px"><button class="btn main" id="rvSave">حفظ المراجعة</button><button class="btn ghost" id="rvClose">إغلاق</button><span class="saved" id="rvMsg" role="status"></span></div></div>`;
+  const tot=()=>{const v=[...d.querySelectorAll("[data-sc]")].map(x=>+x.value); const e=$("#rvTot"); if(e) e.textContent=v.every(Boolean)?`· ${v.reduce((a,b)=>a+b,0)} من 24 ${v.reduce((a,b)=>a+b,0)>=20?'(ناجحة)':'(تحتاج تحسينًا)'}`:"";};
+  d.querySelectorAll("[data-sc]").forEach(x=>x.onchange=tot); tot();
+  $("#rvClose").onclick=()=>{d.innerHTML="";};
+  $("#rvSave").onclick=async()=>{
+    const scores=[...d.querySelectorAll("[data-sc]")].map(x=>+x.value);
+    const body=Object.assign({},REVS[uid]||{}); body[k]={status:$("#rvStat").value,note:$("#rvNote").value.trim(),scores,at:Date.now()};
+    $("#rvMsg").textContent="جارٍ الحفظ…";
+    try{await DB.doc("reviews/"+uid).set(body); $("#rvMsg").textContent="حُفظت المراجعة ✓";}catch(e){$("#rvMsg").textContent="تعذّر الحفظ، حاولي مرة أخرى.";}
+  };
+  d.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function bindForm(){
+  const f=$("#subForm"); if(!f) return;
+  f.onsubmit=async e=>{e.preventDefault(); const fd=new FormData(f), msg=$("#subMsg");
+    const link=(fd.get("link")||"").trim(); if(link&&!safeUrl(link)){msg.textContent="الرابط يجب أن يبدأ بـ https://";return;}
+    const items=Object.assign({},MY.items||{}); items[fd.get("task")]={desc:fd.get("desc").trim(),link,at:Date.now()};
+    const btn=f.querySelector("button[type=submit]"); btn.disabled=true; msg.textContent="جارٍ الإرسال…";
+    try{await DB.doc("subs/"+ME).set({name:fd.get("name").trim(),subject:fd.get("subject").trim(),stage:fd.get("stage"),updatedAt:Date.now(),items});
+      msg.textContent="وصل تسليمك ✓ ستظهر ملاحظات المدربتين أدناه"; f.desc.value=""; f.link.value="";}
+    catch(err){msg.textContent="تعذّر الإرسال. تأكدي من اتصالك وحاولي مجددًا.";}
+    btn.disabled=false;};
+}
+let DB=null, USER=null, ME=null, CAN=false, MY={}, MYREV={}, ALL=[], REVS={};
+let READY=true, GATEKEY="open";
+const gateKey=()=>"open";
+const curId=()=>(location.hash||"#home").slice(1);
+function refresh(){}
+function bindReg(){}
+function homeView(){
+  const part=(ids)=>Math.round(ids.filter(id=>S.done[id]).length/ids.length*100);
+  const firstOpen=ORDER.find(id=>!S.done[id])||"tasks";
+  return `<div class="view"><section class="hero"><span class="k">منصة تعلم ذاتي مجانية · دورة تدريبية للمعلمات</span><h1>معًا عن بُعد</h1>
+   <p>توظيف التعلم التعاوني عبر Microsoft Teams في التعليم عن بُعد. ادرسي الجزء النظري بالسرعة التي تناسبك، وتدربي بالدليل المصور، ثم سلّمي تطبيقاتك العملية.</p>
+   <div class="people"><span>تقديم <b>أ. نوره عوضه الحربي</b> · <b>أ. جميلة نايف الحربي</b></span><span>المدرسة 48 · مديرة المدرسة <b>أ. غزوى العتيبي</b></span></div>
+   <p style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1"><a class="btn" href="#about" style="background:rgba(246,245,251,.14);color:#F6F5FB">برامجنا التدريبية</a><a class="btn" href="#${firstOpen}" style="background:#E8A93B;color:#2A2770">${Object.keys(S.done).length?'أكملي من حيث توقفتِ':'ابدئي الوحدة الأولى'} ←</a></p></section>
+   <div class="path">
+    <a class="stage s1" href="#u1"><span class="n">الجزء الأول</span><h3>التعلم الذاتي</h3><p>8 وحدات قصيرة، في كل وحدة رسم توضيحي ومثال وسؤال تأمل واختبار قصير.</p><div class="meter"><i style="width:${part(UNITS.map(u=>u.id))}%"></i></div></a>
+    <a class="stage s2" href="#g1"><span class="n">الجزء الثاني</span><h3>الدليل المصور</h3><p>7 أدوات في Teams، لكل أداة شاشة مرقمة وخطوات مطابقة لها.</p><div class="meter"><i style="width:${part(GUIDES.map(g=>g.id))}%"></i></div></a>
+    <a class="stage s3" href="#tasks"><span class="n">الجزء الثالث</span><h3>التطبيقات العملية</h3><p>4 تطبيقات على درس من مادتك، ترسلينها للمدربتين عبر واتساب.</p><div class="meter"><i style="width:${S.done.tasks?100:0}%"></i></div></a>
+   </div>
+   <div class="how"><h2 style="font-size:20px">كيف تستفيدين من المنصة؟</h2><ol>
+     <li>ادرسي الوحدات بالترتيب، واكتبي إجابة «توقفي وفكري» فهي مسودة لتطبيقاتك.</li>
+     <li>اضغطي «أنهيت هذا الجزء» في آخر كل صفحة؛ تقدمك يُحفظ في متصفحك على هذا الجهاز.</li>
+     <li>جرّبي كل أداة من الدليل المصور في Teams بنفسك قبل الانتقال للتطبيقات.</li></ol></div></div>`;
+}
+
+function route(){
+  let id=(location.hash||"#home").slice(1);
+  if(!(id==="home"||id==="about"||ORDER.includes(id))) id="home";
+  const main=$("#main");
+  GATEKEY=gateKey(); document.body.classList.toggle("locked",GATEKEY!=="open");
+  if(GATEKEY!=="open"){ main.innerHTML=gateView(GATEKEY); bindReg(); document.title="منصة معًا عن بُعد"; return; }
+  if(id==="admin"){ main.innerHTML=adminView(); renderAdmin(); $("#fTask").onchange=renderAdmin; $("#fStat").onchange=renderAdmin; renderMap(id); closeMap(); document.title="لوحة التسليمات · معًا عن بُعد"; return; }
+  if(id==="about") main.innerHTML=aboutView();
+  else if(id==="home") main.innerHTML=homeView();
+  else if(id==="tasks") main.innerHTML=tasksView();
+  else if(id.startsWith("u")) main.innerHTML=unitView(UNITS.find(u=>u.id===id),UNITS.findIndex(u=>u.id===id));
+  else main.innerHTML=guideView(GUIDES.find(g=>g.id===id),GUIDES.findIndex(g=>g.id===id));
+  renderMap(id); bind(id); closeMap();
+  window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"});
+  try{main.focus({preventScroll:true});}catch(e){}
+  document.title = id==="home" ? "منصة معًا عن بُعد" : TITLE(id)+" · معًا عن بُعد";
+}
+function bind(id){
+  const db=$("#doneBtn");
+  if(db) db.onclick=()=>{S.done[id]=!S.done[id]; save(); renderMap(id); db.className="btn "+(S.done[id]?"done":"main"); db.textContent=S.done[id]?"✓ أنهيتِ هذا الجزء":"أنهيت هذا الجزء";};
+  const ta=document.getElementById("note-"+id);
+  if(ta){let t; ta.oninput=()=>{clearTimeout(t); t=setTimeout(()=>{S.notes[id]=ta.value; save(); $("#saved").textContent="حُفظت في متصفحك";},400);};}
+  const u=UNITS.find(x=>x.id===id);
+  if(u){
+    const score=()=>{const qs=S.quiz[id]||{}; const k=Object.keys(qs); if(k.length) $("#score").textContent=`· ${k.filter(i=>qs[i]===u.quiz[i].a).length} من ${u.quiz.length}`;};
+    score();
+    document.querySelectorAll(".qq").forEach(box=>{
+      const k=+box.dataset.k, q=u.quiz[k];
+      box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+        const j=+b.dataset.j; S.quiz[id]=S.quiz[id]||{}; S.quiz[id][k]=j; save();
+        box.querySelectorAll(".opt").forEach((x,i)=>{x.disabled=true; if(i===q.a)x.classList.add("ok"); else if(i===j)x.classList.add("no");});
+        box.insertAdjacentHTML("beforeend",`<div class="why ${j===q.a?'':'bad'}"><b>${j===q.a?'إجابة صحيحة.':'ليست هذه.'}</b> ${q.w}</div>`);
+        score();
+      });
+    });
+  }
+  document.querySelectorAll('.check input').forEach(c=>c.onchange=()=>{S.checks[c.id.slice(3)]=c.checked; save();});
+}
+/* mobile drawer */
+const map=$("#map"), mb=$("#menuBtn");
+function closeMap(){map.classList.remove("open"); mb.setAttribute("aria-expanded","false"); const s=document.querySelector(".scrim"); if(s) s.remove();}
+mb.onclick=()=>{ if(map.classList.contains("open")) return closeMap(); map.classList.add("open"); mb.setAttribute("aria-expanded","true"); const s=document.createElement("div"); s.className="scrim"; s.onclick=closeMap; document.body.appendChild(s); };
+window.addEventListener("hashchange",route);
+$("#foot").innerHTML=footHTML();
+route();
+</script>
